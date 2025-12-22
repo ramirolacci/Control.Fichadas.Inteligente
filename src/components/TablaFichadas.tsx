@@ -124,7 +124,7 @@ export const TablaFichadas = ({ fichadas }: TablaFichadasProps) => {
                   <td>
                     <div>
                       <div className="font-semibold">{fichada.nombre}</div>
-                      <div className="text-sm opacity-50">Leg: {fichada.legajo}</div>
+                      <div className="text-sm opacity-50">Cod: {fichada.legajo}</div>
                     </div>
                   </td>
                   <td>{fichada.fecha}</td>
