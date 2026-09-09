@@ -1,17 +1,19 @@
-import { Upload, FileSpreadsheet, Sparkles, ShieldCheck, FileCode, Clock, User, Calendar } from 'lucide-react';
+import { Upload, FileSpreadsheet, Sparkles, ShieldCheck, FileCode, Clock, User, Calendar, Sliders } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { MAX_FILE_SIZE } from '../constants';
 import toast from 'react-hot-toast';
 
 interface FileUploadProps {
   onFileSelect: (file: File) => void;
+  onOpenMapper?: (file: File) => void;
   loading: boolean;
   progress: number;
 }
 
-export const FileUpload = ({ onFileSelect, loading, progress }: FileUploadProps) => {
+export const FileUpload = ({ onFileSelect, onOpenMapper, loading, progress }: FileUploadProps) => {
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const mapperInputRef = useRef<HTMLInputElement>(null);
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -56,6 +58,13 @@ export const FileUpload = ({ onFileSelect, loading, progress }: FileUploadProps)
     }
   };
 
+  const handleMapperFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && validateFile(file) && onOpenMapper) {
+      onOpenMapper(file);
+    }
+  };
+
   const handleClick = () => {
     fileInputRef.current?.click();
   };
@@ -66,7 +75,7 @@ export const FileUpload = ({ onFileSelect, loading, progress }: FileUploadProps)
       <div className="text-center mb-6 space-y-2">
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-500 border border-indigo-500/20 text-xs font-semibold tracking-wide mb-1">
           <Sparkles size={13} />
-          <span>Gestión Automática de Asistencia</span>
+          <span>Gestión Automática de Asistencia v2.0</span>
         </div>
         <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-base-content">
           Procesamiento Inteligente de Fichadas
@@ -97,6 +106,14 @@ export const FileUpload = ({ onFileSelect, loading, progress }: FileUploadProps)
             className="hidden"
             disabled={loading}
           />
+          <input
+            ref={mapperInputRef}
+            type="file"
+            accept=".csv,.xls,.xlsx"
+            onChange={handleMapperFileChange}
+            className="hidden"
+            disabled={loading}
+          />
 
           <div className="w-14 h-14 mx-auto mb-4 rounded-xl bg-gradient-to-br from-indigo-500/10 to-emerald-500/10 border border-indigo-500/20 flex items-center justify-center group-hover:scale-110 group-hover:bg-indigo-500/20 transition-all duration-300">
             <Upload className="text-indigo-500 group-hover:text-indigo-600 transition-colors" size={28} />
@@ -116,6 +133,22 @@ export const FileUpload = ({ onFileSelect, loading, progress }: FileUploadProps)
             <span className="text-xs text-base-content/40 ml-1">(Hasta 50MB)</span>
           </div>
         </div>
+
+        {/* Mapper Shortcut Button */}
+        {onOpenMapper && (
+          <div className="mt-4 pt-4 border-t border-base-200/60 flex justify-center">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                mapperInputRef.current?.click();
+              }}
+              className="px-4 py-2 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 border border-indigo-500/20 font-semibold text-xs flex items-center gap-2 transition-all cursor-pointer"
+            >
+              <Sliders size={15} />
+              <span>⚙️ Usar Mapeador de Columnas Multimarca (ZK-Teco, Anviz, Custom)</span>
+            </button>
+          </div>
+        )}
 
         {/* Loading Progress */}
         {loading && (

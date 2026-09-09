@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import * as XLSX from 'xlsx';
-import { FichadaRaw, FichadaProcesada, ConfigTurnos } from '../types';
+import { FichadaRaw, FichadaProcesada, ConfigTurnos, ColumnMappingConfig } from '../types';
 import { useCalculos } from './useCalculos';
 
 export const useFileParser = (turnos: ConfigTurnos) => {
@@ -12,17 +12,45 @@ export const useFileParser = (turnos: ConfigTurnos) => {
   const normalizarColumna = (nombre: string): string => {
     const normalizado = nombre.toLowerCase().trim();
 
-    if (normalizado.includes('legajo') || normalizado.includes('id')) return 'legajo';
-    if (normalizado.includes('nombre') || normalizado.includes('nom') || normalizado.includes('empleado')) return 'nombre';
-    if (normalizado.includes('fecha')) return 'fecha';
-    if (normalizado.includes('hora')) return 'hora';
-    if (normalizado.includes('tipo') || normalizado.includes('movimiento')) return 'tipo';
-    if (normalizado.includes('turno')) return 'turno';
+    if (normalizado.includes('legajo') || normalizado.includes('id') || normalizado.includes('cod')) return 'legajo';
+    if (normalizado.includes('nombre') || normalizado.includes('nom') || normalizado.includes('empleado') || normalizado.includes('name')) return 'nombre';
+    if (normalizado.includes('fecha') || normalizado.includes('date')) return 'fecha';
+    if (normalizado.includes('hora') || normalizado.includes('time') || normalizado.includes('marca')) return 'hora';
+    if (normalizado.includes('tipo') || normalizado.includes('movimiento') || normalizado.includes('status')) return 'tipo';
+    if (normalizado.includes('turno') || normalizado.includes('shift')) return 'turno';
 
     return nombre;
   };
 
-  const mapearColumnas = (row: any): FichadaRaw | null => {
+  const mapearColumnas = (row: any, customMapping?: ColumnMappingConfig): FichadaRaw | null => {
+    if (customMapping) {
+      const legajoVal = row[customMapping.legajo];
+      const nombreVal = row[customMapping.nombre];
+      const fechaVal = row[customMapping.fecha];
+      const horaVal = row[customMapping.hora];
+      const tipoVal = customMapping.tipo ? row[customMapping.tipo] : 'entrada';
+      const turnoVal = customMapping.turno ? row[customMapping.turno] : undefined;
+
+      if (!legajoVal || !nombreVal || !fechaVal || !horaVal) return null;
+
+      const legajo = String(legajoVal).trim();
+      const nombre = String(nombreVal).trim();
+      const fechaStr = normalizarFecha(fechaVal);
+      const horaStr = String(horaVal).trim();
+
+      const tipoLower = String(tipoVal || '').toLowerCase();
+      const tipo = tipoLower.includes('entrada') || tipoLower.includes('in') ? 'entrada' : 'salida';
+
+      return {
+        legajo,
+        nombre,
+        fecha: fechaStr,
+        hora: horaStr,
+        tipo,
+        turno: turnoVal ? (String(turnoVal).trim() as 'mañana' | 'tarde') : undefined,
+      };
+    }
+
     const mapped: any = {};
 
     Object.keys(row).forEach(key => {
@@ -77,7 +105,6 @@ export const useFileParser = (turnos: ConfigTurnos) => {
 
   const limpiarHTML = (texto: string): string => {
     if (!texto) return '';
-    // Remover tags HTML y espacios extra
     return String(texto)
       .replace(/<[^>]*>/g, '')
       .replace(/\s+/g, ' ')
@@ -93,7 +120,6 @@ export const useFileParser = (turnos: ConfigTurnos) => {
       return `${da}/${mo}/${yr}`;
     }
 
-    // Convert Excel date serial numbers (e.g., 46006.8744)
     const num = Number(fechaVal);
     if (!isNaN(num) && num > 10000 && num < 100000) {
       const dateObj = new Date((num - 25569) * 86400 * 1000);
@@ -103,16 +129,13 @@ export const useFileParser = (turnos: ConfigTurnos) => {
       return `${da}/${mo}/${yr}`;
     }
     
-    // Limpiar HTML primero
     let fechaLimpia = limpiarHTML(String(fechaVal));
     
-    // Extraer solo la parte de la fecha (DD/MM/YYYY)
     const matchFecha = fechaLimpia.match(/(\d{2}\/\d{2}\/\d{4})/);
     if (matchFecha) {
       return matchFecha[1];
     }
 
-    // Extraer solo la parte de la fecha (YYYY-MM-DD -> DD/MM/YYYY)
     const matchISO = fechaLimpia.match(/(\d{4})-(\d{2})-(\d{2})/);
     if (matchISO) {
       const [, yr, mo, da] = matchISO;
@@ -125,31 +148,25 @@ export const useFileParser = (turnos: ConfigTurnos) => {
   const limpiarHora = (horaStr: string): string | null => {
     if (!horaStr) return null;
     
-    // Limpiar HTML primero
     let horaLimpia = limpiarHTML(horaStr);
     
-    // Si contiene "Ingreso no fichado" o "Egreso no fichado", retornar null (no considerar)
     if (horaLimpia.toLowerCase().includes('no fichado')) {
       return null;
     }
     
-    // Si es "00:00" y contiene "no fichado" en el HTML original, también ignorar
     if (horaStr.toLowerCase().includes('no fichado')) {
       return null;
     }
     
-    // Extraer solo la hora en formato HH:MM
     const matchHora = horaLimpia.match(/(\d{2}:\d{2})/);
     if (matchHora) {
       const hora = matchHora[1];
-      // Si la hora es 00:00 y el texto original contiene "no fichado", ignorar
       if (hora === '00:00' && horaStr.toLowerCase().includes('no fichado')) {
         return null;
       }
       return hora;
     }
     
-    // Si no coincide con formato HH:MM, retornar null (no considerar)
     return null;
   };
 
@@ -157,7 +174,6 @@ export const useFileParser = (turnos: ConfigTurnos) => {
     const parser = new DOMParser();
     const doc = parser.parseFromString(htmlContent, 'text/html');
     
-    // Buscar la tabla de fichadas
     const tablaFichadas = doc.querySelector('table');
     if (!tablaFichadas) {
       throw new Error('No se encontró la tabla de fichadas en el archivo HTML');
@@ -168,7 +184,6 @@ export const useFileParser = (turnos: ConfigTurnos) => {
     
     const fichadasRaw: FichadaRaw[] = [];
     
-    // Obtener encabezados
     const thead = tablaFichadas.querySelector('thead');
     const headerRow = thead?.querySelector('tr');
     const headers: string[] = [];
@@ -179,20 +194,17 @@ export const useFileParser = (turnos: ConfigTurnos) => {
     }
 
     filas.forEach((fila) => {
-      // Saltar filas de totales o encabezados
       if (fila.classList.contains('danger') || fila.querySelector('th')) return;
       
       const celdas = fila.querySelectorAll('td');
-      if (celdas.length < 8) return; // Mínimo de columnas necesarias
+      if (celdas.length < 8) return;
 
       const datos: { [key: string]: string } = {};
       celdas.forEach((celda, idx) => {
         const header = headers[idx] || `col${idx}`;
-        // Usar innerHTML para preservar el HTML original que luego limpiaremos
         datos[header] = celda.innerHTML || celda.textContent || '';
       });
 
-      // Extraer datos básicos
       const codEmpleado = limpiarHTML(datos['Cod. empleado'] || datos[headers[0] || ''] || '');
       const fechaCompleta = normalizarFecha(datos['Fecha'] || datos[headers[1] || ''] || '');
       const nombre = limpiarHTML(datos['Nombre'] || datos[headers[2] || ''] || '');
@@ -203,11 +215,7 @@ export const useFileParser = (turnos: ConfigTurnos) => {
         return;
       }
 
-      // Procesar las múltiples columnas de horas
-      // El formato tiene hasta 3 pares de "Hora Desde" y "Hora Hasta"
       const paresHoras: Array<{ desde: string | null; hasta: string | null }> = [];
-      
-      // Buscar índices de las columnas de horas
       const indicesDesde: number[] = [];
       const indicesHasta: number[] = [];
       
@@ -221,7 +229,6 @@ export const useFileParser = (turnos: ConfigTurnos) => {
         }
       });
 
-      // Emparejar las horas
       indicesDesde.forEach((idxDesde, i) => {
         const contenidoDesde = celdas[idxDesde]?.innerHTML || celdas[idxDesde]?.textContent || '';
         const horaDesde = limpiarHora(contenidoDesde);
@@ -229,19 +236,14 @@ export const useFileParser = (turnos: ConfigTurnos) => {
         const contenidoHasta = idxHasta !== undefined ? (celdas[idxHasta]?.innerHTML || celdas[idxHasta]?.textContent || '') : '';
         const horaHasta = contenidoHasta ? limpiarHora(contenidoHasta) : null;
         
-        // Solo agregar el par si al menos una hora es válida (no null)
         if (horaDesde !== null || horaHasta !== null) {
           paresHoras.push({ desde: horaDesde, hasta: horaHasta });
         }
       });
 
-      // Crear fichadas para cada par de horas
       paresHoras.forEach((par, idx) => {
-        // El primer par es generalmente mañana, los siguientes tarde
         const turno = idx === 0 ? 'mañana' : 'tarde';
         
-        // Solo agregar entrada si hay una hora válida (no null ni vacía)
-        // Ignorar completamente si es "Ingreso no fichado"
         if (par.desde && typeof par.desde === 'string') {
           fichadasRaw.push({
             legajo: codEmpleado,
@@ -253,8 +255,6 @@ export const useFileParser = (turnos: ConfigTurnos) => {
           });
         }
         
-        // Solo agregar salida si hay una hora válida (no null ni vacía)
-        // Ignorar completamente si es "Egreso no fichado"
         if (par.hasta && typeof par.hasta === 'string') {
           fichadasRaw.push({
             legajo: codEmpleado,
@@ -271,7 +271,41 @@ export const useFileParser = (turnos: ConfigTurnos) => {
     return fichadasRaw;
   };
 
-  const parseFile = async (file: File): Promise<FichadaRaw[]> => {
+  const extraerHeadersYPreview = async (file: File): Promise<{ headers: string[]; sampleRows: any[] }> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const data = e.target?.result;
+          let workbook: XLSX.WorkBook;
+          if (file.name.endsWith('.csv')) {
+            const text = typeof data === 'string' ? data : new TextDecoder().decode(data as ArrayBuffer);
+            workbook = XLSX.read(text, { type: 'string' });
+          } else {
+            workbook = XLSX.read(data, { type: 'array' });
+          }
+          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+          const jsonData = XLSX.utils.sheet_to_json<Record<string, any>>(firstSheet);
+          if (jsonData.length === 0) {
+            resolve({ headers: [], sampleRows: [] });
+            return;
+          }
+          const headers = Object.keys(jsonData[0]);
+          resolve({ headers, sampleRows: jsonData.slice(0, 5) });
+        } catch (err) {
+          reject(err);
+        }
+      };
+      reader.onerror = () => reject(reader.error);
+      if (file.name.endsWith('.csv')) {
+        reader.readAsText(file, 'UTF-8');
+      } else {
+        reader.readAsArrayBuffer(file);
+      }
+    });
+  };
+
+  const parseFile = async (file: File, customMapping?: ColumnMappingConfig): Promise<FichadaRaw[]> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
 
@@ -285,11 +319,9 @@ export const useFileParser = (turnos: ConfigTurnos) => {
         try {
           const data = e.target?.result;
           
-          // Verificar si es un archivo HTML (archivos .xls guardados como HTML)
           if (file.name.endsWith('.xls') || file.name.endsWith('.html') || file.name.endsWith('.htm')) {
             const text = typeof data === 'string' ? data : new TextDecoder().decode(data as ArrayBuffer);
             
-            // Si contiene HTML, parsearlo como HTML
             if (text.includes('<html') || text.includes('<table') || text.includes('</table>')) {
               setProgress(50);
               const fichadasRaw = parsearHTMLExcel(text);
@@ -315,7 +347,7 @@ export const useFileParser = (turnos: ConfigTurnos) => {
           setProgress(75);
 
           const fichadasRaw = jsonData
-            .map(row => mapearColumnas(row))
+            .map(row => mapearColumnas(row, customMapping))
             .filter((f): f is FichadaRaw => f !== null);
 
           setProgress(100);
@@ -436,12 +468,12 @@ export const useFileParser = (turnos: ConfigTurnos) => {
     });
   };
 
-  const procesarArchivo = async (file: File): Promise<FichadaProcesada[]> => {
+  const procesarArchivo = async (file: File, customMapping?: ColumnMappingConfig): Promise<FichadaProcesada[]> => {
     setLoading(true);
     setProgress(0);
 
     try {
-      const fichadasRaw = await parseFile(file);
+      const fichadasRaw = await parseFile(file, customMapping);
       const fichadasProcesadas = procesarFichadas(fichadasRaw);
       return fichadasProcesadas;
     } finally {
@@ -452,6 +484,7 @@ export const useFileParser = (turnos: ConfigTurnos) => {
 
   return {
     procesarArchivo,
+    extraerHeadersYPreview,
     loading,
     progress,
     rawData,

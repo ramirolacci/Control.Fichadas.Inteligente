@@ -209,4 +209,24 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     padding-bottom: 8px;
     border-bottom: 2px solid #000000;
   }
+
+  /* Printable Individual Employee Slip (.print-ficha-container) */
+  .print-ficha-container {
+    position: static !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    border: none !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .print-ficha-container * {
+    color: #000000 !important;
+    border-color: #94a3b8 !important;
+  }
 }

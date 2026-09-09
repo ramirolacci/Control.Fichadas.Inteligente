@@ -63,3 +63,12 @@ export interface Filtros {
   busqueda: string;
   tipoNovedad: TipoNovedad;
 }
+
+export interface ColumnMappingConfig {
+  legajo: string;
+  nombre: string;
+  fecha: string;
+  hora: string;
+  tipo?: string;
+  turno?: string;
+}

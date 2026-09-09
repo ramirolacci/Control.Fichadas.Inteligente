@@ -6,6 +6,7 @@ import { REGISTROS_POR_PAGINA } from '../constants';
 interface TablaFichadasProps {
   fichadas: FichadaProcesada[];
   onEditFichada?: (fichada: FichadaProcesada) => void;
+  onVerFicha?: (legajo: string, nombre: string) => void;
 }
 
 type SortField = 'empleado' | 'fecha' | 'novedad';
@@ -40,7 +41,7 @@ const formatFechaDisplay = (fechaStr: string): string => {
   return str;
 };
 
-export const TablaFichadas = ({ fichadas, onEditFichada }: TablaFichadasProps) => {
+export const TablaFichadas = ({ fichadas, onEditFichada, onVerFicha }: TablaFichadasProps) => {
   const [sortField, setSortField] = useState<SortField>('fecha');
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
   const [paginaActual, setPaginaActual] = useState(1);
@@ -214,10 +215,24 @@ export const TablaFichadas = ({ fichadas, onEditFichada }: TablaFichadasProps) =
               >
                 <td className="py-3">
                   <div>
-                    <div className="font-bold text-base-content text-xs group-hover:text-indigo-400 transition-colors flex items-center gap-1.5">
-                      <span>{fichada.nombre}</span>
-                      {fichada.editadoManualmente && (
-                        <span className="text-[10px] text-indigo-400 font-semibold" title="Editado manualmente">✍️</span>
+                    <div className="font-bold text-base-content text-xs group-hover:text-indigo-400 transition-colors flex items-center justify-between gap-1.5 pr-2">
+                      <div className="flex items-center gap-1.5">
+                        <span>{fichada.nombre}</span>
+                        {fichada.editadoManualmente && (
+                          <span className="text-[10px] text-indigo-400 font-semibold" title="Editado manualmente">✍️</span>
+                        )}
+                      </div>
+                      {onVerFicha && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onVerFicha(fichada.legajo, fichada.nombre);
+                          }}
+                          className="no-print opacity-0 group-hover:opacity-100 px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 hover:bg-indigo-500/30 text-[10px] font-semibold transition-all"
+                          title="Ver e imprimir Ficha Individual de Conformidad"
+                        >
+                          📄 Ficha
+                        </button>
                       )}
                     </div>
                     <div className="flex items-center gap-1.5 mt-0.5">
