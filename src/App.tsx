@@ -13,7 +13,7 @@ import { useFileParser } from './hooks/useFileParser';
 import { useCalculos } from './hooks/useCalculos';
 import { FichadaProcesada, ConfigTurnos, Filtros as FiltrosType, EstadisticasDiarias } from './types';
 import { DEFAULT_TURNOS } from './constants';
-import { generarDatosDemo } from './data/demoData';
+
 
 function App() {
   const [turnos, setTurnos] = useState<ConfigTurnos>(DEFAULT_TURNOS);
@@ -36,26 +36,7 @@ function App() {
     }
   }, []);
 
-  useEffect(() => {
-    const cargarDatosDemo = async () => {
-      const datosDemo = generarDatosDemo();
-      const csvContent = [
-        'legajo,nombre,fecha,hora,tipo,turno',
-        ...datosDemo.map(f => `${f.legajo},${f.nombre},${f.fecha},${f.hora},${f.tipo},${f.turno}`)
-      ].join('\n');
 
-      const blob = new Blob([csvContent], { type: 'text/csv' });
-      const file = new File([blob], 'demo.csv', { type: 'text/csv' });
-
-      const fichadasProcesadas = await procesarArchivo(file);
-      setFichadas(fichadasProcesadas);
-      toast.success('Datos de demostración cargados');
-    };
-
-    if (fichadas.length === 0) {
-      cargarDatosDemo();
-    }
-  }, []);
 
   const handleFileSelect = async (file: File) => {
     try {
@@ -141,12 +122,12 @@ function App() {
   }, [fichadas, calcularTotalHoras]);
 
   return (
-    <div className="min-h-screen bg-base-200">
+    <div className="min-h-screen flex flex-col bg-base-200/50 bg-mesh-pattern transition-colors duration-300">
       <Toaster position="top-right" />
 
       <Header onLimpiar={handleLimpiar} tieneDatos={fichadas.length > 0} />
 
-      <main className="container mx-auto px-4 py-8">
+      <main className={`container mx-auto px-4 ${fichadas.length === 0 ? 'flex-1 flex flex-col justify-center py-2' : 'py-6'}`}>
         {fichadas.length > 0 && (
           <>
             <Dashboard estadisticas={estadisticas} />

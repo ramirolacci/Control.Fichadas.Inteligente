@@ -5,6 +5,7 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    font-family: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
   }
 }
 
@@ -13,6 +14,33 @@
     position: sticky;
     top: 0;
     z-index: 10;
+  }
+
+  /* Glassmorphism helpers */
+  .glass-card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  [data-theme='dark'] .glass-card {
+    background: rgba(15, 23, 42, 0.75);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .bg-mesh-pattern {
+    background-image: radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.12) 0px, transparent 50%),
+                      radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.08) 0px, transparent 50%),
+                      radial-gradient(at 50% 50%, rgba(14, 165, 233, 0.06) 0px, transparent 50%);
+  }
+
+  [data-theme='dark'] .bg-mesh-pattern {
+    background-image: radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.18) 0px, transparent 50%),
+                      radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.12) 0px, transparent 50%),
+                      radial-gradient(at 50% 0%, rgba(56, 189, 248, 0.1) 0px, transparent 50%);
   }
 }
 
