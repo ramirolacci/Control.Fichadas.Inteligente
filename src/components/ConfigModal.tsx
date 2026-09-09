@@ -1,4 +1,4 @@
-import { Settings, X, Info, Sun, Moon, Check } from 'lucide-react';
+import { Settings, X, Info, Sun, Moon, Check, ShieldAlert } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { ConfigTurnos } from '../types';
 import toast from 'react-hot-toast';
@@ -14,7 +14,11 @@ export const ConfigModal = ({ isOpen, onClose, turnos, onGuardar }: ConfigModalP
   const [turnosEdit, setTurnosEdit] = useState<ConfigTurnos>(turnos);
 
   useEffect(() => {
-    setTurnosEdit(turnos);
+    setTurnosEdit({
+      ...turnos,
+      toleranciaMinutos: turnos.toleranciaMinutos ?? 15,
+      jornadaDiariaHoras: turnos.jornadaDiariaHoras ?? 8,
+    });
   }, [turnos, isOpen]);
 
   const handleChange = (turno: 'mañana' | 'tarde', campo: 'ingreso' | 'egreso', valor: string) => {
@@ -43,10 +47,8 @@ export const ConfigModal = ({ isOpen, onClose, turnos, onGuardar }: ConfigModalP
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md transition-all">
-      {/* Backdrop overlay listener */}
       <div className="absolute inset-0" onClick={onClose} />
 
-      {/* Modal Content Box */}
       <div className="relative w-full max-w-lg glass-card bg-base-100/95 border border-base-200/80 rounded-3xl p-6 sm:p-8 shadow-2xl z-10 space-y-5">
         {/* Header */}
         <div className="flex items-start justify-between pb-4 border-b border-base-200/60">
@@ -56,10 +58,10 @@ export const ConfigModal = ({ isOpen, onClose, turnos, onGuardar }: ConfigModalP
             </div>
             <div>
               <h3 className="font-extrabold text-lg tracking-tight text-base-content">
-                Configuración de Turnos
+                Configuración de Turnos y Reglas
               </h3>
               <p className="text-xs text-base-content/60">
-                Define los horarios normativos para el cálculo de asistencias.
+                Horarios normativos, tolerancias y cálculo de horas extras.
               </p>
             </div>
           </div>
@@ -72,7 +74,7 @@ export const ConfigModal = ({ isOpen, onClose, turnos, onGuardar }: ConfigModalP
         </div>
 
         {/* Turnos Form */}
-        <div className="space-y-4">
+        <div className="space-y-4 max-h-[65vh] overflow-y-auto pr-1">
           {/* Turno Mañana */}
           <div className="p-4 rounded-2xl bg-base-200/50 border border-base-300/50 space-y-3">
             <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-indigo-500">
@@ -137,13 +139,60 @@ export const ConfigModal = ({ isOpen, onClose, turnos, onGuardar }: ConfigModalP
             </div>
           </div>
 
+          {/* Reglas de Asistencia & Horas Extras */}
+          <div className="p-4 rounded-2xl bg-base-200/50 border border-base-300/50 space-y-3">
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-indigo-500">
+              <ShieldAlert size={15} />
+              <span>Tolerancia & Jornada Legal</span>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-[11px] font-semibold text-base-content/70 mb-1 block">
+                  Tolerancia Tardanza (min)
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  max="60"
+                  className="w-full px-3 py-2 rounded-xl bg-base-100 border border-base-300 text-base-content text-xs font-mono font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all shadow-sm"
+                  value={turnosEdit.toleranciaMinutos ?? 15}
+                  onChange={(e) =>
+                    setTurnosEdit({
+                      ...turnosEdit,
+                      toleranciaMinutos: Number(e.target.value),
+                    })
+                  }
+                />
+              </div>
+              <div>
+                <label className="text-[11px] font-semibold text-base-content/70 mb-1 block">
+                  Jornada Legal Diaria (hs)
+                </label>
+                <input
+                  type="number"
+                  min="4"
+                  max="12"
+                  step="0.5"
+                  className="w-full px-3 py-2 rounded-xl bg-base-100 border border-base-300 text-base-content text-xs font-mono font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all shadow-sm"
+                  value={turnosEdit.jornadaDiariaHoras ?? 8}
+                  onChange={(e) =>
+                    setTurnosEdit({
+                      ...turnosEdit,
+                      jornadaDiariaHoras: Number(e.target.value),
+                    })
+                  }
+                />
+              </div>
+            </div>
+          </div>
+
           {/* Info Notice */}
           <div className="p-3.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-500 flex items-start gap-2.5 text-xs">
             <Info size={16} className="shrink-0 mt-0.5" />
             <div className="space-y-0.5">
-              <p className="font-semibold">Información del Cómputo</p>
+              <p className="font-semibold">Cómputo Automático de Extras</p>
               <p className="text-base-content/70 text-[11px]">
-                Los cambios recalculan automáticamente el estado de las fichadas procesadas. Tolerancia de tardanza: ±15 minutos.
+                Exceso sobre la jornada diaria ({turnosEdit.jornadaDiariaHoras ?? 8}h) se calcula al <strong>50%</strong>. Domingos y feriados computan al <strong>100%</strong>. Horas entre 21:00 y 06:00 hs se marcan como <strong>Nocturnas</strong>.
               </p>
             </div>
           </div>

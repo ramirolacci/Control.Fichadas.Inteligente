@@ -5,6 +5,7 @@ import { REGISTROS_POR_PAGINA } from '../constants';
 
 interface TablaFichadasProps {
   fichadas: FichadaProcesada[];
+  onEditFichada?: (fichada: FichadaProcesada) => void;
 }
 
 type SortField = 'empleado' | 'fecha' | 'novedad';
@@ -39,7 +40,7 @@ const formatFechaDisplay = (fechaStr: string): string => {
   return str;
 };
 
-export const TablaFichadas = ({ fichadas }: TablaFichadasProps) => {
+export const TablaFichadas = ({ fichadas, onEditFichada }: TablaFichadasProps) => {
   const [sortField, setSortField] = useState<SortField>('fecha');
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
   const [paginaActual, setPaginaActual] = useState(1);
@@ -205,13 +206,30 @@ export const TablaFichadas = ({ fichadas }: TablaFichadasProps) => {
           {/* Screen-Only Paginated Body */}
           <tbody className="divide-y divide-base-200/50 screen-only">
             {fichadasPaginadas.map((fichada, index) => (
-              <tr key={`screen-${fichada.legajo}-${fichada.fecha}-${index}`} className="hover:bg-indigo-500/5 transition-colors">
+              <tr
+                key={`screen-${fichada.legajo}-${fichada.fecha}-${index}`}
+                onClick={() => onEditFichada && onEditFichada(fichada)}
+                className="hover:bg-indigo-500/10 cursor-pointer transition-colors group"
+                title="Haz clic para editar esta fichada u agregar observaciones"
+              >
                 <td className="py-3">
                   <div>
-                    <div className="font-bold text-base-content text-xs">{fichada.nombre}</div>
-                    <span className="font-mono text-[10px] text-base-content/50 bg-base-200/80 px-1.5 py-0.5 rounded">
-                      Cod: {fichada.legajo}
-                    </span>
+                    <div className="font-bold text-base-content text-xs group-hover:text-indigo-400 transition-colors flex items-center gap-1.5">
+                      <span>{fichada.nombre}</span>
+                      {fichada.editadoManualmente && (
+                        <span className="text-[10px] text-indigo-400 font-semibold" title="Editado manualmente">✍️</span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      <span className="font-mono text-[10px] text-base-content/50 bg-base-200/80 px-1.5 py-0.5 rounded">
+                        Cod: {fichada.legajo}
+                      </span>
+                      {fichada.observaciones && (
+                        <span className="text-[10px] text-amber-400 font-medium truncate max-w-[120px]" title={fichada.observaciones}>
+                          💬 {fichada.observaciones}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </td>
                 <td className="font-mono text-xs text-base-content/80">{formatFechaDisplay(fichada.fecha)}</td>
@@ -221,7 +239,31 @@ export const TablaFichadas = ({ fichadas }: TablaFichadasProps) => {
                 <td className="font-mono text-xs">{fichada.ingresoTarde || '-'}</td>
                 <td className="font-mono text-xs">{fichada.egresoTarde || '-'}</td>
                 <td className="font-semibold font-mono text-xs text-indigo-500">{fichada.totalTarde}</td>
-                <td>{renderBadgeNovedad(fichada)}</td>
+                <td>
+                  <div className="flex flex-wrap items-center gap-1">
+                    {renderBadgeNovedad(fichada)}
+                    {fichada.incompleto && (
+                      <span className="badge badge-sm bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px]" title="Fichada incompleta">
+                        Incompleta
+                      </span>
+                    )}
+                    {(fichada.horasExtras50 || 0) > 0 && (
+                      <span className="badge badge-sm bg-violet-500/20 text-violet-300 border border-violet-500/30 text-[10px] font-bold" title="Horas Extras al 50%">
+                        +{fichada.horasExtras50}h (50%)
+                      </span>
+                    )}
+                    {(fichada.horasExtras100 || 0) > 0 && (
+                      <span className="badge badge-sm bg-purple-500/20 text-purple-300 border border-purple-500/30 text-[10px] font-bold" title="Horas Extras al 100%">
+                        +{fichada.horasExtras100}h (100%)
+                      </span>
+                    )}
+                    {(fichada.horasNocturnas || 0) > 0 && (
+                      <span className="badge badge-sm bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-[10px]" title="Horas Nocturnas">
+                        🌙 {fichada.horasNocturnas}h
+                      </span>
+                    )}
+                  </div>
+                </td>
               </tr>
             ))}
           </tbody>

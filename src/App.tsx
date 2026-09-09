@@ -8,17 +8,24 @@ import { FileUpload } from './components/FileUpload';
 import { Filtros } from './components/Filtros';
 import { TablaFichadas } from './components/TablaFichadas';
 import { ConfigModal } from './components/ConfigModal';
+import { EditFichadaModal } from './components/EditFichadaModal';
 import { ExportButtons } from './components/ExportButtons';
 import { useFileParser } from './hooks/useFileParser';
 import { useCalculos } from './hooks/useCalculos';
 import { FichadaProcesada, ConfigTurnos, Filtros as FiltrosType, EstadisticasDiarias } from './types';
 import { DEFAULT_TURNOS } from './constants';
-
+import {
+  guardarFichadasLocal,
+  obtenerFichadasLocal,
+  actualizarFichadaLocal,
+  limpiarFichadasLocal,
+} from './services/db';
 
 function App() {
   const [turnos, setTurnos] = useState<ConfigTurnos>(DEFAULT_TURNOS);
   const [fichadas, setFichadas] = useState<FichadaProcesada[]>([]);
   const [configModalOpen, setConfigModalOpen] = useState(false);
+  const [fichadaEditando, setFichadaEditando] = useState<FichadaProcesada | null>(null);
   const [filtros, setFiltros] = useState<FiltrosType>({
     fechaInicio: '',
     fechaFin: '',
@@ -27,22 +34,37 @@ function App() {
   });
 
   const { procesarArchivo, loading, progress } = useFileParser(turnos);
-  const { calcularTotalHoras } = useCalculos(turnos);
+  const { calcularTotalHoras, diffHoras, desglosarHoras } = useCalculos(turnos);
 
   useEffect(() => {
     const turnosGuardados = localStorage.getItem('turnos');
     if (turnosGuardados) {
       setTurnos(JSON.parse(turnosGuardados));
     }
+
+    const cargarHistorialLocal = async () => {
+      try {
+        const recuperadas = await obtenerFichadasLocal();
+        if (recuperadas && recuperadas.length > 0) {
+          setFichadas(recuperadas);
+          toast.success(`${recuperadas.length} fichadas recuperadas de la sesión guardada`, {
+            id: 'indexeddb-load-toast',
+          });
+        }
+      } catch (err) {
+        console.error('Error al recuperar IndexedDB:', err);
+      }
+    };
+
+    cargarHistorialLocal();
   }, []);
-
-
 
   const handleFileSelect = async (file: File) => {
     try {
       const fichadasProcesadas = await procesarArchivo(file);
       setFichadas(fichadasProcesadas);
-      toast.success(`${fichadasProcesadas.length} registros procesados`);
+      await guardarFichadasLocal(fichadasProcesadas);
+      toast.success(`${fichadasProcesadas.length} registros procesados y guardados`);
     } catch (error) {
       toast.error('Error al procesar el archivo');
       console.error(error);
@@ -54,7 +76,7 @@ function App() {
     localStorage.setItem('turnos', JSON.stringify(nuevosTurnos));
   };
 
-  const handleLimpiar = () => {
+  const handleLimpiar = async () => {
     setFichadas([]);
     setFiltros({
       fechaInicio: '',
@@ -62,7 +84,43 @@ function App() {
       busqueda: '',
       tipoNovedad: 'todas',
     });
+    await limpiarFichadasLocal();
     toast.success('Datos eliminados');
+  };
+
+  const handleGuardarFichadaEditada = async (actualizada: FichadaProcesada) => {
+    const totMañana = diffHoras(actualizada.ingresoMañana, actualizada.egresoMañana);
+    const totTarde = diffHoras(actualizada.ingresoTarde, actualizada.egresoTarde);
+
+    const desglose = desglosarHoras(
+      {
+        ingresoMañana: actualizada.ingresoMañana,
+        egresoMañana: actualizada.egresoMañana,
+        ingresoTarde: actualizada.ingresoTarde,
+        egresoTarde: actualizada.egresoTarde,
+      },
+      actualizada.fecha
+    );
+
+    const completa: FichadaProcesada = {
+      ...actualizada,
+      totalMañana: totMañana,
+      totalTarde: totTarde,
+      horasNormales: desglose.horasNormales,
+      horasExtras50: desglose.horasExtras50,
+      horasExtras100: desglose.horasExtras100,
+      horasNocturnas: desglose.horasNocturnas,
+    };
+
+    setFichadas(prev =>
+      prev.map(f => {
+        const idMatch = (f.id && f.id === completa.id) || (f.legajo === completa.legajo && f.fecha === completa.fecha);
+        return idMatch ? completa : f;
+      })
+    );
+
+    await actualizarFichadaLocal(completa);
+    toast.success('Fichada actualizada correctamente');
   };
 
   const toISODate = (fechaStr: string): string => {
@@ -105,7 +163,7 @@ function App() {
             if (!novedadLower.includes('ausente')) return false;
             break;
           case 'enfermo':
-            if (!novedadLower.includes('enfermo')) return false;
+            if (!novedadLower.includes('enfermo') && !novedadLower.includes('médica')) return false;
             break;
         }
       }
@@ -124,12 +182,19 @@ function App() {
       return acc + calcularTotalHoras(f.totalMañana, f.totalTarde);
     }, 0);
 
+    const totalHorasExtras50 = fichadas.reduce((acc, f) => acc + (f.horasExtras50 || 0), 0);
+    const totalHorasExtras100 = fichadas.reduce((acc, f) => acc + (f.horasExtras100 || 0), 0);
+    const totalHorasNocturnas = fichadas.reduce((acc, f) => acc + (f.horasNocturnas || 0), 0);
+
     return {
       totalEmpleados: empleadosUnicos.size,
       presentes,
       tardanzas,
       ausentes,
       totalHoras,
+      totalHorasExtras50,
+      totalHorasExtras100,
+      totalHorasNocturnas,
     };
   }, [fichadas, calcularTotalHoras]);
 
@@ -169,7 +234,10 @@ function App() {
 
             <Filtros filtros={filtros} onFiltrosChange={setFiltros} />
 
-            <TablaFichadas fichadas={fichadasFiltradas} />
+            <TablaFichadas
+              fichadas={fichadasFiltradas}
+              onEditFichada={(fichada) => setFichadaEditando(fichada)}
+            />
           </>
         )}
 
@@ -188,8 +256,16 @@ function App() {
         turnos={turnos}
         onGuardar={handleGuardarTurnos}
       />
+
+      <EditFichadaModal
+        isOpen={Boolean(fichadaEditando)}
+        onClose={() => setFichadaEditando(null)}
+        fichada={fichadaEditando}
+        onGuardar={handleGuardarFichadaEditada}
+      />
     </div>
   );
 }
 
 export default App;
+

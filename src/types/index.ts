@@ -8,6 +8,7 @@ export interface FichadaRaw {
 }
 
 export interface FichadaProcesada {
+  id?: string;
   legajo: string;
   nombre: string;
   fecha: string;
@@ -20,6 +21,14 @@ export interface FichadaProcesada {
   novedad: string;
   motivoNovedad?: string;
   colorNovedad: 'success' | 'warning' | 'error' | 'info';
+  editadoManualmente?: boolean;
+  justificado?: boolean;
+  observaciones?: string;
+  incompleto?: boolean;
+  horasNormales?: number;
+  horasExtras50?: number;
+  horasExtras100?: number;
+  horasNocturnas?: number;
 }
 
 export interface Turno {
@@ -30,6 +39,9 @@ export interface Turno {
 export interface ConfigTurnos {
   mañana: Turno;
   tarde: Turno;
+  toleranciaMinutos?: number;
+  jornadaDiariaHoras?: number;
+  feriadosAdicionales?: string[];
 }
 
 export interface EstadisticasDiarias {
@@ -38,6 +50,9 @@ export interface EstadisticasDiarias {
   tardanzas: number;
   ausentes: number;
   totalHoras: number;
+  totalHorasExtras50?: number;
+  totalHorasExtras100?: number;
+  totalHorasNocturnas?: number;
 }
 
 export type TipoNovedad = 'todas' | 'normal' | 'tardanza' | 'ausente' | 'enfermo';

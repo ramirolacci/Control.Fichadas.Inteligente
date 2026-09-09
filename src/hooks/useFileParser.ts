@@ -7,7 +7,7 @@ export const useFileParser = (turnos: ConfigTurnos) => {
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [rawData, setRawData] = useState<FichadaRaw[]>([]);
-  const { diffHoras, calcularNovedad } = useCalculos(turnos);
+  const { diffHoras, calcularNovedad, desglosarHoras } = useCalculos(turnos);
 
   const normalizarColumna = (nombre: string): string => {
     const normalizado = nombre.toLowerCase().trim();
@@ -394,7 +394,19 @@ export const useFileParser = (turnos: ConfigTurnos) => {
           fecha
         );
 
+        const desglose = desglosarHoras(
+          { ingresoMañana, egresoMañana, ingresoTarde, egresoTarde },
+          fecha
+        );
+
+        const estaIncompleto =
+          (ingresoMañana && !egresoMañana) ||
+          (!ingresoMañana && egresoMañana) ||
+          (ingresoTarde && !egresoTarde) ||
+          (!ingresoTarde && egresoTarde);
+
         resultado.push({
+          id: `${legajo}_${fecha}`,
           legajo,
           nombre,
           fecha,
@@ -406,6 +418,11 @@ export const useFileParser = (turnos: ConfigTurnos) => {
           totalTarde,
           novedad,
           colorNovedad: color,
+          horasNormales: desglose.horasNormales,
+          horasExtras50: desglose.horasExtras50,
+          horasExtras100: desglose.horasExtras100,
+          horasNocturnas: desglose.horasNocturnas,
+          incompleto: Boolean(estaIncompleto),
         });
       });
     });

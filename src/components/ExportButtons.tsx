@@ -21,6 +21,10 @@ export const ExportButtons = ({ fichadas }: ExportButtonsProps) => {
         'Egreso Tarde': f.egresoTarde || '-',
         'Total Tarde': f.totalTarde,
         'Novedad': f.novedad,
+        'Horas Extras 50%': f.horasExtras50 || 0,
+        'Horas Extras 100%': f.horasExtras100 || 0,
+        'Horas Nocturnas': f.horasNocturnas || 0,
+        'Observaciones': f.observaciones || '',
       }));
 
       const ws = XLSX.utils.json_to_sheet(dataExport);
@@ -38,6 +42,10 @@ export const ExportButtons = ({ fichadas }: ExportButtonsProps) => {
         { wch: 15 },
         { wch: 13 },
         { wch: 20 },
+        { wch: 15 },
+        { wch: 15 },
+        { wch: 15 },
+        { wch: 30 },
       ];
 
       const fecha = new Date().toISOString().split('T')[0];
@@ -62,19 +70,27 @@ export const ExportButtons = ({ fichadas }: ExportButtonsProps) => {
         'Egreso Tarde',
         'Total Tarde',
         'Novedad',
+        'Horas Extras 50%',
+        'Horas Extras 100%',
+        'Horas Nocturnas',
+        'Observaciones',
       ];
 
       const rows = fichadas.map(f => [
-        f.legajo,
-        f.nombre,
-        f.fecha,
-        f.ingresoMañana || '-',
-        f.egresoMañana || '-',
-        f.totalMañana,
-        f.ingresoTarde || '-',
-        f.egresoTarde || '-',
-        f.totalTarde,
-        f.novedad,
+        `"${f.legajo}"`,
+        `"${f.nombre}"`,
+        `"${f.fecha}"`,
+        `"${f.ingresoMañana || '-'}"`,
+        `"${f.egresoMañana || '-'}"`,
+        `"${f.totalMañana}"`,
+        `"${f.ingresoTarde || '-'}"`,
+        `"${f.egresoTarde || '-'}"`,
+        `"${f.totalTarde}"`,
+        `"${f.novedad}"`,
+        f.horasExtras50 || 0,
+        f.horasExtras100 || 0,
+        f.horasNocturnas || 0,
+        `"${f.observaciones || ''}"`,
       ]);
 
       const csvContent = [
