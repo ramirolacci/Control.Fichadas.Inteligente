@@ -1,4 +1,4 @@
-import { Settings, X, Info } from 'lucide-react';
+import { Settings, X, Info, Sun, Moon, Check } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { ConfigTurnos } from '../types';
 import toast from 'react-hot-toast';
@@ -42,44 +42,62 @@ export const ConfigModal = ({ isOpen, onClose, turnos, onGuardar }: ConfigModalP
   if (!isOpen) return null;
 
   return (
-    <div className="modal modal-open backdrop-blur-sm bg-black/40">
-      <div className="modal-box max-w-xl glass-card border border-base-200/60 rounded-3xl p-6 shadow-2xl">
-        <div className="flex items-center justify-between mb-6 pb-4 border-b border-base-200/60">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-indigo-500/10 text-indigo-500">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md transition-all">
+      {/* Backdrop overlay listener */}
+      <div className="absolute inset-0" onClick={onClose} />
+
+      {/* Modal Content Box */}
+      <div className="relative w-full max-w-lg glass-card bg-base-100/95 border border-base-200/80 rounded-3xl p-6 sm:p-8 shadow-2xl z-10 space-y-5">
+        {/* Header */}
+        <div className="flex items-start justify-between pb-4 border-b border-base-200/60">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-500 border border-indigo-500/20 flex items-center justify-center shrink-0">
               <Settings size={20} />
             </div>
-            <h3 className="font-extrabold text-lg tracking-tight text-base-content">
-              Configuración de Turnos
-            </h3>
+            <div>
+              <h3 className="font-extrabold text-lg tracking-tight text-base-content">
+                Configuración de Turnos
+              </h3>
+              <p className="text-xs text-base-content/60">
+                Define los horarios normativos para el cálculo de asistencias.
+              </p>
+            </div>
           </div>
-          <button onClick={onClose} className="btn btn-sm btn-circle btn-ghost text-base-content/60 hover:text-base-content">
-            <X size={18} />
+          <button
+            onClick={onClose}
+            className="w-8 h-8 rounded-xl bg-base-200/80 hover:bg-base-200 text-base-content/70 hover:text-base-content flex items-center justify-center transition-all cursor-pointer"
+          >
+            <X size={16} />
           </button>
         </div>
 
+        {/* Turnos Form */}
         <div className="space-y-4">
-          <div className="p-4 rounded-2xl bg-base-100/60 border border-base-200/60">
-            <h4 className="font-bold text-xs uppercase tracking-wider text-indigo-500 mb-3">Turno Mañana</h4>
+          {/* Turno Mañana */}
+          <div className="p-4 rounded-2xl bg-base-200/50 border border-base-300/50 space-y-3">
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-indigo-500">
+              <Sun size={15} />
+              <span>Turno Mañana</span>
+            </div>
             <div className="grid grid-cols-2 gap-3">
-              <div className="form-control">
-                <label className="label py-1">
-                  <span className="label-text text-xs text-base-content/70">Hora de Ingreso</span>
+              <div>
+                <label className="text-[11px] font-semibold text-base-content/70 mb-1 block">
+                  Hora de Ingreso
                 </label>
                 <input
                   type="time"
-                  className="input input-sm input-bordered bg-base-100 rounded-xl focus:border-indigo-500 text-xs font-mono"
+                  className="w-full px-3 py-2 rounded-xl bg-base-100 border border-base-300 text-base-content text-xs font-mono font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all shadow-sm"
                   value={turnosEdit.mañana.ingreso}
                   onChange={(e) => handleChange('mañana', 'ingreso', e.target.value)}
                 />
               </div>
-              <div className="form-control">
-                <label className="label py-1">
-                  <span className="label-text text-xs text-base-content/70">Hora de Egreso</span>
+              <div>
+                <label className="text-[11px] font-semibold text-base-content/70 mb-1 block">
+                  Hora de Egreso
                 </label>
                 <input
                   type="time"
-                  className="input input-sm input-bordered bg-base-100 rounded-xl focus:border-indigo-500 text-xs font-mono"
+                  className="w-full px-3 py-2 rounded-xl bg-base-100 border border-base-300 text-base-content text-xs font-mono font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all shadow-sm"
                   value={turnosEdit.mañana.egreso}
                   onChange={(e) => handleChange('mañana', 'egreso', e.target.value)}
                 />
@@ -87,27 +105,31 @@ export const ConfigModal = ({ isOpen, onClose, turnos, onGuardar }: ConfigModalP
             </div>
           </div>
 
-          <div className="p-4 rounded-2xl bg-base-100/60 border border-base-200/60">
-            <h4 className="font-bold text-xs uppercase tracking-wider text-indigo-500 mb-3">Turno Tarde</h4>
+          {/* Turno Tarde */}
+          <div className="p-4 rounded-2xl bg-base-200/50 border border-base-300/50 space-y-3">
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-indigo-500">
+              <Moon size={15} />
+              <span>Turno Tarde</span>
+            </div>
             <div className="grid grid-cols-2 gap-3">
-              <div className="form-control">
-                <label className="label py-1">
-                  <span className="label-text text-xs text-base-content/70">Hora de Ingreso</span>
+              <div>
+                <label className="text-[11px] font-semibold text-base-content/70 mb-1 block">
+                  Hora de Ingreso
                 </label>
                 <input
                   type="time"
-                  className="input input-sm input-bordered bg-base-100 rounded-xl focus:border-indigo-500 text-xs font-mono"
+                  className="w-full px-3 py-2 rounded-xl bg-base-100 border border-base-300 text-base-content text-xs font-mono font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all shadow-sm"
                   value={turnosEdit.tarde.ingreso}
                   onChange={(e) => handleChange('tarde', 'ingreso', e.target.value)}
                 />
               </div>
-              <div className="form-control">
-                <label className="label py-1">
-                  <span className="label-text text-xs text-base-content/70">Hora de Egreso</span>
+              <div>
+                <label className="text-[11px] font-semibold text-base-content/70 mb-1 block">
+                  Hora de Egreso
                 </label>
                 <input
                   type="time"
-                  className="input input-sm input-bordered bg-base-100 rounded-xl focus:border-indigo-500 text-xs font-mono"
+                  className="w-full px-3 py-2 rounded-xl bg-base-100 border border-base-300 text-base-content text-xs font-mono font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all shadow-sm"
                   value={turnosEdit.tarde.egreso}
                   onChange={(e) => handleChange('tarde', 'egreso', e.target.value)}
                 />
@@ -115,25 +137,35 @@ export const ConfigModal = ({ isOpen, onClose, turnos, onGuardar }: ConfigModalP
             </div>
           </div>
 
-          <div className="p-3.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-500 flex items-start gap-2.5">
+          {/* Info Notice */}
+          <div className="p-3.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-500 flex items-start gap-2.5 text-xs">
             <Info size={16} className="shrink-0 mt-0.5" />
-            <div className="text-xs space-y-0.5">
+            <div className="space-y-0.5">
               <p className="font-semibold">Información del Cómputo</p>
-              <p className="text-base-content/70">Los cambios se aplicarán automáticamente a todas las fichadas procesadas. Tolerancia de tardanza: ±15 minutos.</p>
+              <p className="text-base-content/70 text-[11px]">
+                Los cambios recalculan automáticamente el estado de las fichadas procesadas. Tolerancia de tardanza: ±15 minutos.
+              </p>
             </div>
           </div>
         </div>
 
-        <div className="modal-action mt-6 pt-4 border-t border-base-200/60 flex items-center justify-end gap-2">
-          <button onClick={onClose} className="btn btn-sm btn-ghost rounded-xl">
-            Cancelar
+        {/* Modal Action Buttons */}
+        <div className="pt-4 border-t border-base-200/60 flex items-center justify-end gap-3">
+          <button
+            onClick={handleGuardar}
+            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white font-semibold text-xs flex items-center gap-1.5 transition-all shadow-md shadow-indigo-950/40 active:scale-95 cursor-pointer"
+          >
+            <Check size={15} />
+            <span>Guardar Cambios</span>
           </button>
-          <button onClick={handleGuardar} className="btn btn-sm btn-primary bg-indigo-600 hover:bg-indigo-700 border-none text-white rounded-xl shadow-md">
-            Guardar Cambios
+          <button
+            onClick={onClose}
+            className="px-4 py-2.5 rounded-xl bg-base-200 hover:bg-base-300 text-base-content font-semibold text-xs transition-all shadow-sm cursor-pointer"
+          >
+            Cancelar
           </button>
         </div>
       </div>
-      <div className="modal-backdrop" onClick={onClose}></div>
     </div>
   );
 };
