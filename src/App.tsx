@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Toaster } from 'react-hot-toast';
 import toast from 'react-hot-toast';
-import { Settings } from 'lucide-react';
+import { Settings, Trash2 } from 'lucide-react';
 import { Header } from './components/Header';
 import { Dashboard } from './components/Dashboard';
 import { FileUpload } from './components/FileUpload';
@@ -65,10 +65,22 @@ function App() {
     toast.success('Datos eliminados');
   };
 
+  const toISODate = (fechaStr: string): string => {
+    if (!fechaStr) return '';
+    const str = String(fechaStr).trim();
+    const matchDDMM = str.match(/^(\d{2})\/(\d{2})\/(\d{4})/);
+    if (matchDDMM) {
+      const [, da, mo, yr] = matchDDMM;
+      return `${yr}-${mo}-${da}`;
+    }
+    return str;
+  };
+
   const fichadasFiltradas = useMemo(() => {
     return fichadas.filter(f => {
-      if (filtros.fechaInicio && f.fecha < filtros.fechaInicio) return false;
-      if (filtros.fechaFin && f.fecha > filtros.fechaFin) return false;
+      const fechaISO = toISODate(f.fecha);
+      if (filtros.fechaInicio && fechaISO < filtros.fechaInicio) return false;
+      if (filtros.fechaFin && fechaISO > filtros.fechaFin) return false;
 
       if (filtros.busqueda) {
         const busquedaLower = filtros.busqueda.toLowerCase();
@@ -125,7 +137,7 @@ function App() {
     <div className="min-h-screen flex flex-col bg-base-200/50 bg-mesh-pattern transition-colors duration-300">
       <Toaster position="top-right" />
 
-      <Header onLimpiar={handleLimpiar} tieneDatos={fichadas.length > 0} />
+      <Header />
 
       <main className={`container mx-auto px-4 ${fichadas.length === 0 ? 'flex-1 flex flex-col justify-center py-2' : 'py-6'}`}>
         {fichadas.length > 0 && (
@@ -134,13 +146,25 @@ function App() {
 
             <div className="no-print flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
               <ExportButtons fichadas={fichadasFiltradas} />
-              <button
-                onClick={() => setConfigModalOpen(true)}
-                className="px-4 py-2.5 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-indigo-300 border border-indigo-500/30 font-semibold text-xs flex items-center gap-2 transition-all shadow-md shadow-indigo-950/20 active:scale-95 cursor-pointer"
-              >
-                <Settings size={16} />
-                <span>Configurar Turnos</span>
-              </button>
+
+              <div className="flex items-center gap-2.5">
+                <button
+                  onClick={() => setConfigModalOpen(true)}
+                  className="px-4 py-2.5 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-indigo-300 border border-indigo-500/30 font-semibold text-xs flex items-center gap-2 transition-all shadow-md shadow-indigo-950/20 active:scale-95 cursor-pointer"
+                >
+                  <Settings size={16} />
+                  <span>Configurar Turnos</span>
+                </button>
+
+                <button
+                  onClick={handleLimpiar}
+                  className="px-4 py-2.5 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 text-rose-400 border border-rose-500/30 font-semibold text-xs flex items-center gap-2 transition-all shadow-md shadow-rose-950/20 active:scale-95 cursor-pointer"
+                  title="Limpiar fichadas cargadas"
+                >
+                  <Trash2 size={16} />
+                  <span>Limpiar Fichadas</span>
+                </button>
+              </div>
             </div>
 
             <Filtros filtros={filtros} onFiltrosChange={setFiltros} />

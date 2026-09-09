@@ -10,6 +10,35 @@ interface TablaFichadasProps {
 type SortField = 'empleado' | 'fecha' | 'novedad';
 type SortOrder = 'asc' | 'desc';
 
+const formatFechaDisplay = (fechaStr: string): string => {
+  if (!fechaStr) return '';
+  const str = String(fechaStr).trim();
+
+  // If already DD/MM/YYYY
+  if (/^\d{2}\/\d{2}\/\d{4}$/.test(str)) {
+    return str;
+  }
+
+  // If YYYY-MM-DD -> DD/MM/YYYY
+  const matchISO = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (matchISO) {
+    const [, yr, mo, da] = matchISO;
+    return `${da}/${mo}/${yr}`;
+  }
+
+  // If Excel serial number
+  const num = Number(str);
+  if (!isNaN(num) && num > 10000 && num < 100000) {
+    const dateObj = new Date((num - 25569) * 86400 * 1000);
+    const yr = dateObj.getUTCFullYear();
+    const mo = String(dateObj.getUTCMonth() + 1).padStart(2, '0');
+    const da = String(dateObj.getUTCDate()).padStart(2, '0');
+    return `${da}/${mo}/${yr}`;
+  }
+
+  return str;
+};
+
 export const TablaFichadas = ({ fichadas }: TablaFichadasProps) => {
   const [sortField, setSortField] = useState<SortField>('fecha');
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
@@ -185,7 +214,7 @@ export const TablaFichadas = ({ fichadas }: TablaFichadasProps) => {
                     </span>
                   </div>
                 </td>
-                <td className="font-mono text-xs text-base-content/80">{fichada.fecha}</td>
+                <td className="font-mono text-xs text-base-content/80">{formatFechaDisplay(fichada.fecha)}</td>
                 <td className="font-mono text-xs">{fichada.ingresoMañana || '-'}</td>
                 <td className="font-mono text-xs">{fichada.egresoMañana || '-'}</td>
                 <td className="font-semibold font-mono text-xs text-indigo-500">{fichada.totalMañana}</td>
@@ -205,7 +234,7 @@ export const TablaFichadas = ({ fichadas }: TablaFichadasProps) => {
                   <div className="font-bold text-black text-xs">{fichada.nombre}</div>
                   <div className="text-[10px] text-slate-600 font-mono">Cod: {fichada.legajo}</div>
                 </td>
-                <td className="font-mono text-xs">{fichada.fecha}</td>
+                <td className="font-mono text-xs">{formatFechaDisplay(fichada.fecha)}</td>
                 <td className="font-mono text-xs">{fichada.ingresoMañana || '-'}</td>
                 <td className="font-mono text-xs">{fichada.egresoMañana || '-'}</td>
                 <td className="font-semibold font-mono text-xs">{fichada.totalMañana}</td>

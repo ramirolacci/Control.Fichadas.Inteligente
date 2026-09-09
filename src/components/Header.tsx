@@ -1,12 +1,7 @@
-import { Moon, Sun, Trash2, Clock } from 'lucide-react';
+import { Moon, Sun, Clock } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-interface HeaderProps {
-  onLimpiar: () => void;
-  tieneDatos: boolean;
-}
-
-export const Header = ({ onLimpiar, tieneDatos }: HeaderProps) => {
+export const Header = () => {
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
 
   useEffect(() => {
@@ -44,17 +39,6 @@ export const Header = ({ onLimpiar, tieneDatos }: HeaderProps) => {
         </div>
 
         <div className="flex items-center gap-3">
-          {tieneDatos && (
-            <button
-              onClick={onLimpiar}
-              className="px-3.5 py-1.5 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 text-rose-400 border border-rose-500/30 text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm active:scale-95 cursor-pointer"
-              title="Limpiar datos cargados"
-            >
-              <Trash2 size={14} />
-              <span>Limpiar Fichadas</span>
-            </button>
-          )}
-
           <button
             onClick={toggleTheme}
             className="w-8 h-8 rounded-xl bg-base-200/80 hover:bg-base-200 border border-base-300/60 flex items-center justify-center text-base-content/80 hover:text-base-content transition-all cursor-pointer"

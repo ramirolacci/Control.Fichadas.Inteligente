@@ -90,7 +90,7 @@ export const useFileParser = (turnos: ConfigTurnos) => {
       const yr = fechaVal.getFullYear();
       const mo = String(fechaVal.getMonth() + 1).padStart(2, '0');
       const da = String(fechaVal.getDate()).padStart(2, '0');
-      return `${yr}-${mo}-${da}`;
+      return `${da}/${mo}/${yr}`;
     }
 
     // Convert Excel date serial numbers (e.g., 46006.8744)
@@ -100,7 +100,7 @@ export const useFileParser = (turnos: ConfigTurnos) => {
       const yr = dateObj.getUTCFullYear();
       const mo = String(dateObj.getUTCMonth() + 1).padStart(2, '0');
       const da = String(dateObj.getUTCDate()).padStart(2, '0');
-      return `${yr}-${mo}-${da}`;
+      return `${da}/${mo}/${yr}`;
     }
     
     // Limpiar HTML primero
@@ -112,15 +112,11 @@ export const useFileParser = (turnos: ConfigTurnos) => {
       return matchFecha[1];
     }
 
-    // Extraer solo la parte de la fecha (YYYY-MM-DD)
-    const matchISO = fechaLimpia.match(/(\d{4}-\d{2}-\d{2})/);
+    // Extraer solo la parte de la fecha (YYYY-MM-DD -> DD/MM/YYYY)
+    const matchISO = fechaLimpia.match(/(\d{4})-(\d{2})-(\d{2})/);
     if (matchISO) {
-      return matchISO[1];
-    }
-    
-    // Si ya está en formato DD/MM/YYYY, devolverla
-    if (/^\d{2}\/\d{2}\/\d{4}$/.test(fechaLimpia)) {
-      return fechaLimpia;
+      const [, yr, mo, da] = matchISO;
+      return `${da}/${mo}/${yr}`;
     }
     
     return fechaLimpia;
