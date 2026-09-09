@@ -92,6 +92,16 @@ export const useFileParser = (turnos: ConfigTurnos) => {
       const da = String(fechaVal.getDate()).padStart(2, '0');
       return `${yr}-${mo}-${da}`;
     }
+
+    // Convert Excel date serial numbers (e.g., 46006.8744)
+    const num = Number(fechaVal);
+    if (!isNaN(num) && num > 10000 && num < 100000) {
+      const dateObj = new Date((num - 25569) * 86400 * 1000);
+      const yr = dateObj.getUTCFullYear();
+      const mo = String(dateObj.getUTCMonth() + 1).padStart(2, '0');
+      const da = String(dateObj.getUTCDate()).padStart(2, '0');
+      return `${yr}-${mo}-${da}`;
+    }
     
     // Limpiar HTML primero
     let fechaLimpia = limpiarHTML(String(fechaVal));

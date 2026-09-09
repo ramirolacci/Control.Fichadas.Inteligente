@@ -47,20 +47,20 @@ export const Header = ({ onLimpiar, tieneDatos }: HeaderProps) => {
           {tieneDatos && (
             <button
               onClick={onLimpiar}
-              className="btn btn-ghost btn-sm text-error/80 hover:text-error hover:bg-error/10 gap-2 font-medium transition-all"
+              className="px-3.5 py-1.5 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 text-rose-400 border border-rose-500/30 text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm active:scale-95 cursor-pointer"
               title="Limpiar datos cargados"
             >
-              <Trash2 size={16} />
-              <span className="hidden sm:inline">Limpiar Fichadas</span>
+              <Trash2 size={14} />
+              <span>Limpiar Fichadas</span>
             </button>
           )}
 
           <button
             onClick={toggleTheme}
-            className="btn btn-ghost btn-circle btn-sm text-base-content/70 hover:text-base-content transition-all"
+            className="w-8 h-8 rounded-xl bg-base-200/80 hover:bg-base-200 border border-base-300/60 flex items-center justify-center text-base-content/80 hover:text-base-content transition-all cursor-pointer"
             title={theme === 'light' ? 'Cambiar a modo oscuro' : 'Cambiar a modo claro'}
           >
-            {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
+            {theme === 'light' ? <Moon size={16} /> : <Sun size={16} />}
           </button>
         </div>
       </div>

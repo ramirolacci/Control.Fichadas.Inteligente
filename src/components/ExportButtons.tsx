@@ -1,4 +1,4 @@
-import { Download, FileSpreadsheet, FileText } from 'lucide-react';
+import { Printer, FileSpreadsheet, FileText } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { FichadaProcesada } from '../types';
 import toast from 'react-hot-toast';
@@ -111,27 +111,29 @@ export const ExportButtons = ({ fichadas }: ExportButtonsProps) => {
   }
 
   return (
-    <div className="flex flex-wrap gap-2 mb-6">
+    <div className="flex flex-wrap items-center gap-2.5">
       <button
         onClick={exportarExcel}
-        className="btn btn-success gap-2"
+        className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-semibold text-xs flex items-center gap-2 transition-all shadow-md shadow-emerald-950/30 active:scale-95 cursor-pointer"
       >
-        <FileSpreadsheet size={20} />
-        Exportar Excel
+        <FileSpreadsheet size={16} />
+        <span>Exportar Excel</span>
       </button>
+
       <button
         onClick={exportarCSV}
-        className="btn btn-info gap-2"
+        className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-sky-600 to-sky-500 hover:from-sky-500 hover:to-sky-400 text-white font-semibold text-xs flex items-center gap-2 transition-all shadow-md shadow-sky-950/30 active:scale-95 cursor-pointer"
       >
-        <FileText size={20} />
-        Exportar CSV
+        <FileText size={16} />
+        <span>Exportar CSV</span>
       </button>
+
       <button
         onClick={imprimirTabla}
-        className="btn btn-secondary gap-2"
+        className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white font-semibold text-xs flex items-center gap-2 transition-all shadow-md shadow-indigo-950/30 active:scale-95 cursor-pointer"
       >
-        <Download size={20} />
-        Imprimir
+        <Printer size={16} />
+        <span>Imprimir</span>
       </button>
     </div>
   );

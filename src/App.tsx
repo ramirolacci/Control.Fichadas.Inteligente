@@ -132,14 +132,14 @@ function App() {
           <>
             <Dashboard estadisticas={estadisticas} />
 
-            <div className="flex justify-between items-center mb-4">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
               <ExportButtons fichadas={fichadasFiltradas} />
               <button
                 onClick={() => setConfigModalOpen(true)}
-                className="btn btn-outline gap-2"
+                className="px-4 py-2.5 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-indigo-300 border border-indigo-500/30 font-semibold text-xs flex items-center gap-2 transition-all shadow-md shadow-indigo-950/20 active:scale-95 cursor-pointer"
               >
-                <Settings size={20} />
-                Configurar Turnos
+                <Settings size={16} />
+                <span>Configurar Turnos</span>
               </button>
             </div>
 
