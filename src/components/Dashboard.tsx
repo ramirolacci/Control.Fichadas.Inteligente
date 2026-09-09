@@ -7,7 +7,7 @@ interface DashboardProps {
 
 export const Dashboard = ({ estadisticas }: DashboardProps) => {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div className="no-print grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
       {/* Total Empleados */}
       <div className="glass-card p-5 rounded-2xl border border-base-200/60 shadow-xl flex items-center justify-between transition-all duration-300 hover:scale-[1.01]">
         <div>

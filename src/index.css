@@ -44,35 +44,169 @@
   }
 }
 
+/* Custom input styling for high contrast in dark/light mode */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.6);
+  cursor: pointer;
+}
+[data-theme='dark'] input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.9);
+}
+
+/* Screen vs Print helper classes */
+@media screen {
+  .print-only {
+    display: none !important;
+  }
+}
+
 @media print {
   @page {
-    size: landscape;
-    margin: 1cm;
+    size: A4 landscape;
+    margin: 8mm;
   }
 
-  body {
-    print-color-adjust: exact;
-    -webkit-print-color-adjust: exact;
+  /* Force clean white background and black text on all root containers */
+  html, body, #root, main {
+    background: #ffffff !important;
+    color: #000000 !important;
+    background-image: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    min-height: auto !important;
   }
 
-  .no-print {
-    display: none !important;
-  }
-
+  /* Hide header, filters, action bars, toasts, modals, and screen-only elements */
   header,
-  .btn,
-  .stats,
-  .alert {
+  .no-print,
+  .screen-only,
+  .glass-card:not(.print-table-card),
+  .toast,
+  .modal {
     display: none !important;
   }
 
-  .table {
-    font-size: 10px;
+  /* Correct display types for print-only elements */
+  div.print-only {
+    display: block !important;
+  }
+  tbody.print-only {
+    display: table-row-group !important;
+  }
+  tr.print-only {
+    display: table-row !important;
   }
 
-  .table th,
-  .table td {
-    padding: 4px;
-    border: 1px solid #ddd;
+  /* Print Table Container - Full A4 Width */
+  .print-table-card {
+    background: #ffffff !important;
+    border: none !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+  }
+
+  .print-table-card .overflow-x-auto {
+    overflow: visible !important;
+    width: 100% !important;
+  }
+
+  /* Clean Black & White Printable Table spanning 100% page width */
+  .print-table-card table {
+    width: 100% !important;
+    max-width: 100% !important;
+    table-layout: fixed !important;
+    border-collapse: collapse !important;
+    font-size: 8.5pt !important;
+    color: #000000 !important;
+    background: #ffffff !important;
+  }
+
+  .print-table-card thead {
+    display: table-header-group !important;
+  }
+
+  .print-table-card tbody {
+    display: table-row-group !important;
+  }
+
+  .print-table-card tr {
+    display: table-row !important;
+    page-break-inside: avoid !important;
+  }
+
+  .print-table-card thead tr {
+    background: #f1f5f9 !important;
+    border-bottom: 2px solid #000000 !important;
+  }
+
+  .print-table-card th {
+    color: #000000 !important;
+    background: #f1f5f9 !important;
+    border: 1px solid #64748b !important;
+    padding: 6px 4px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    font-size: 7.5pt !important;
+    line-height: 1.2 !important;
+    white-space: normal !important;
+    word-break: normal !important;
+    overflow-wrap: break-word !important;
+    text-align: center !important;
+  }
+
+  .print-table-card th:first-child {
+    text-align: left !important;
+  }
+
+  .print-table-card td {
+    color: #000000 !important;
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    padding: 5px 4px !important;
+    font-size: 8.5pt !important;
+    white-space: normal !important;
+    word-break: normal !important;
+    overflow-wrap: break-word !important;
+    text-align: center !important;
+  }
+
+  .print-table-card td:first-child {
+    text-align: left !important;
+  }
+
+  .print-table-card tr:nth-child(even) td {
+    background: #f8fafc !important;
+  }
+
+  /* Badges in Print: Clean B&W outline style */
+  .print-table-card .badge {
+    background: transparent !important;
+    color: #000000 !important;
+    border: 1px solid #475569 !important;
+    font-weight: 600 !important;
+    box-shadow: none !important;
+    padding: 2px 4px !important;
+    font-size: 7.5pt !important;
+    white-space: nowrap !important;
+  }
+
+  /* Hide Pagination and Footer Bar in Print */
+  .print-table-card .join,
+  .print-table-card .border-t {
+    display: none !important;
+  }
+
+  /* Print Header Title Banner */
+  .print-header-banner {
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #000000;
   }
 }

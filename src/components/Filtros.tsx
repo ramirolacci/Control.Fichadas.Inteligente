@@ -15,7 +15,7 @@ export const Filtros = ({ filtros, onFiltrosChange }: FiltrosProps) => {
   };
 
   return (
-    <div className="glass-card rounded-2xl p-5 sm:p-6 mb-6 shadow-xl border border-base-200/60 transition-all">
+    <div className="no-print glass-card rounded-2xl p-5 sm:p-6 mb-6 shadow-xl border border-base-200/60 transition-all">
       <div className="flex items-center gap-2 mb-4 pb-3 border-b border-base-200/60">
         <div className="p-1.5 rounded-lg bg-indigo-500/10 text-indigo-500">
           <Filter size={16} />

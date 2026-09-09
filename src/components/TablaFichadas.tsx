@@ -63,7 +63,7 @@ export const TablaFichadas = ({ fichadas }: TablaFichadasProps) => {
     if (novLower.includes('normal') || novLower.includes('ok')) {
       return (
         <span className="badge badge-sm bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 gap-1 font-semibold px-2.5 py-1">
-          <CheckCircle2 size={12} />
+          <CheckCircle2 size={12} className="no-print" />
           {fichada.novedad}
         </span>
       );
@@ -71,7 +71,7 @@ export const TablaFichadas = ({ fichadas }: TablaFichadasProps) => {
     if (novLower.includes('tarde') || novLower.includes('tardanza')) {
       return (
         <span className="badge badge-sm bg-amber-500/10 text-amber-500 border border-amber-500/20 gap-1 font-semibold px-2.5 py-1">
-          <AlertTriangle size={12} />
+          <AlertTriangle size={12} className="no-print" />
           {fichada.novedad}
         </span>
       );
@@ -79,14 +79,14 @@ export const TablaFichadas = ({ fichadas }: TablaFichadasProps) => {
     if (novLower.includes('ausente')) {
       return (
         <span className="badge badge-sm bg-rose-500/10 text-rose-500 border border-rose-500/20 gap-1 font-semibold px-2.5 py-1">
-          <XCircle size={12} />
+          <XCircle size={12} className="no-print" />
           {fichada.novedad}
         </span>
       );
     }
     return (
       <span className="badge badge-sm bg-sky-500/10 text-sky-500 border border-sky-500/20 gap-1 font-semibold px-2.5 py-1">
-        <Stethoscope size={12} />
+        <Stethoscope size={12} className="no-print" />
         {fichada.novedad}
       </span>
     );
@@ -96,10 +96,45 @@ export const TablaFichadas = ({ fichadas }: TablaFichadasProps) => {
     return null;
   }
 
+  const fechaHoy = new Date().toLocaleDateString('es-AR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  });
+
   return (
-    <div className="glass-card rounded-2xl shadow-xl overflow-hidden border border-base-200/60 transition-all">
+    <div className="glass-card print-table-card rounded-2xl shadow-xl overflow-hidden border border-base-200/60 transition-all">
+      {/* Print-Only Header Banner */}
+      <div className="print-header-banner print-only">
+        <div className="flex justify-between items-end pb-2">
+          <div>
+            <h1 className="text-base font-bold text-black uppercase tracking-wider">
+              Control de Fichadas - Reporte de Asistencia
+            </h1>
+            <p className="text-xs text-slate-600 font-mono">
+              Fecha de Emisión: {fechaHoy}
+            </p>
+          </div>
+          <div className="text-right text-xs text-slate-600 font-mono">
+            Total de Registros: {fichadasOrdenadas.length}
+          </div>
+        </div>
+      </div>
+
       <div className="overflow-x-auto">
         <table className="table table-zebra w-full text-xs">
+          <colgroup>
+            <col style={{ width: '20%' }} />
+            <col style={{ width: '11%' }} />
+            <col style={{ width: '9%' }} />
+            <col style={{ width: '9%' }} />
+            <col style={{ width: '9%' }} />
+            <col style={{ width: '9%' }} />
+            <col style={{ width: '9%' }} />
+            <col style={{ width: '9%' }} />
+            <col style={{ width: '15%' }} />
+          </colgroup>
+
           <thead className="bg-base-200/80 backdrop-blur-md sticky top-0 z-10 border-b border-base-300/60">
             <tr className="text-base-content/70">
               <th
@@ -120,11 +155,11 @@ export const TablaFichadas = ({ fichadas }: TablaFichadasProps) => {
                   <SortIcon field="fecha" />
                 </div>
               </th>
-              <th className="font-bold uppercase tracking-wider text-[11px] py-3.5">Ingreso Mañana</th>
-              <th className="font-bold uppercase tracking-wider text-[11px] py-3.5">Egreso Mañana</th>
+              <th className="font-bold uppercase tracking-wider text-[11px] py-3.5">Ing. Mañana</th>
+              <th className="font-bold uppercase tracking-wider text-[11px] py-3.5">Egr. Mañana</th>
               <th className="font-bold uppercase tracking-wider text-[11px] py-3.5">Total Mañana</th>
-              <th className="font-bold uppercase tracking-wider text-[11px] py-3.5">Ingreso Tarde</th>
-              <th className="font-bold uppercase tracking-wider text-[11px] py-3.5">Egreso Tarde</th>
+              <th className="font-bold uppercase tracking-wider text-[11px] py-3.5">Ing. Tarde</th>
+              <th className="font-bold uppercase tracking-wider text-[11px] py-3.5">Egr. Tarde</th>
               <th className="font-bold uppercase tracking-wider text-[11px] py-3.5">Total Tarde</th>
               <th
                 className="cursor-pointer hover:bg-base-300/50 transition-colors py-3.5"
@@ -137,9 +172,11 @@ export const TablaFichadas = ({ fichadas }: TablaFichadasProps) => {
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-base-200/50">
+
+          {/* Screen-Only Paginated Body */}
+          <tbody className="divide-y divide-base-200/50 screen-only">
             {fichadasPaginadas.map((fichada, index) => (
-              <tr key={`${fichada.legajo}-${fichada.fecha}-${index}`} className="hover:bg-indigo-500/5 transition-colors">
+              <tr key={`screen-${fichada.legajo}-${fichada.fecha}-${index}`} className="hover:bg-indigo-500/5 transition-colors">
                 <td className="py-3">
                   <div>
                     <div className="font-bold text-base-content text-xs">{fichada.nombre}</div>
@@ -159,11 +196,31 @@ export const TablaFichadas = ({ fichadas }: TablaFichadasProps) => {
               </tr>
             ))}
           </tbody>
+
+          {/* Print-Only Body (All Records) */}
+          <tbody className="divide-y divide-slate-300 print-only">
+            {fichadasOrdenadas.map((fichada, index) => (
+              <tr key={`print-${fichada.legajo}-${fichada.fecha}-${index}`}>
+                <td>
+                  <div className="font-bold text-black text-xs">{fichada.nombre}</div>
+                  <div className="text-[10px] text-slate-600 font-mono">Cod: {fichada.legajo}</div>
+                </td>
+                <td className="font-mono text-xs">{fichada.fecha}</td>
+                <td className="font-mono text-xs">{fichada.ingresoMañana || '-'}</td>
+                <td className="font-mono text-xs">{fichada.egresoMañana || '-'}</td>
+                <td className="font-semibold font-mono text-xs">{fichada.totalMañana}</td>
+                <td className="font-mono text-xs">{fichada.ingresoTarde || '-'}</td>
+                <td className="font-mono text-xs">{fichada.egresoTarde || '-'}</td>
+                <td className="font-semibold font-mono text-xs">{fichada.totalTarde}</td>
+                <td>{renderBadgeNovedad(fichada)}</td>
+              </tr>
+            ))}
+          </tbody>
         </table>
       </div>
 
       {totalPaginas > 1 && (
-        <div className="flex items-center justify-between p-4 bg-base-100/40 border-t border-base-200/60">
+        <div className="flex items-center justify-between p-4 bg-base-100/40 border-t border-base-200/60 screen-only">
           <span className="text-xs text-base-content/50">
             Mostrando {fichadasPaginadas.length} de {fichadasOrdenadas.length} registros
           </span>
