@@ -1,9 +1,9 @@
 <div align="center">
 
-  # ⏱️ Control de Fichadas Inteligente
+  # ⏱️ Control de Fichadas Inteligente v2.0
 
   <p align="center">
-    <b>Plataforma web de alto rendimiento para la gestión, análisis y auditoría automatizada de asistencia del personal.</b>
+    <b>Plataforma web de alto rendimiento para la gestión, análisis, auditoría y liquidación automatizada de asistencia de personal.</b>
   </p>
 
   [![React](https://img.shields.io/badge/React-18.3-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
@@ -16,42 +16,49 @@
 
 ---
 
-## 📌 Vista Previa del Sistema
+## 📸 Galería de Capturas del Sistema
 
-![Control de Fichadas Inteligente](Screenshot_1.png)
+<p align="center">
+  <img src="public/screenshots/Screenshot_1.png" width="49%" alt="Pantalla Principal Carga" />
+  <img src="public/screenshots/Screenshot_2.png" width="49%" alt="Dashboard y Grilla de Fichadas" />
+</p>
+<p align="center">
+  <img src="public/screenshots/Screenshot_3.png" width="49%" alt="Configuración de Turnos y Reglas" />
+  <img src="public/screenshots/Screenshot_4.png" width="49%" alt="Edición Manual y Mapeador" />
+</p>
 
 ---
 
 ## ✨ Características Principales
 
 ### 📊 **Dashboard Executive & Métricas en Tiempo Real**
-- Resumen inmediato de indicadores clave: **Total de Empleados**, **Personal Presente**, **Tardanzas**, **Ausentes** y **Cómputo Total de Horas Trabajadas**.
-- Visualización limpia para la toma rápida de decisiones por parte de supervisores y Recursos Humanos.
+- Indicadores clave inmediatos: **Total de Empleados**, **Personal Presente**, **Tardanzas**, **Ausentes**, **Horas Totales Trabajadas**, **Horas Extras (50% y 100%)** y **Horas Nocturnas**.
+- Paneles visuales intuitivos para la toma rápida de decisiones por parte de supervisores y Recursos Humanos.
 
-### ⚡ **Procesamiento Inteligente de Fichadas**
-- Carga ágil de archivos en formatos **CSV** y **Excel (.xlsx)**.
+### ⚡ **Procesamiento Inteligente & Mapeador Multimarca**
+- Carga ágil de planillas en formatos **CSV**, **XLS** y **XLSX**.
+- **Asistente Mapeador de Columnas**: Importación compatible con cualquier reloj biométrico (**ZK-Teco**, **Hikvision**, **Anviz**, **Dahua** y planillas personalizadas).
 - Algoritmo de emparejamiento automático para fichadas de **Turno Mañana** y **Turno Tarde**.
-- Cálculo preciso de horas trabajadas según las normas operativas.
 
-### 🎯 **Detección de Novedades y Auditoría**
-- Clasificación automática de registros:
-  - ✅ **Normal**: Fichadas en regla y horario establecido.
-  - ⏱️ **Tardanza**: Marcaciones fuera del margen de tolerancia.
-  - 🚫 **Ausente**: Ausencias detectadas en la jornada.
-  - 🩺 **Enfermedad / Justificados**: Registro de novedades de salud.
+### ✍️ **Edición Manual Auditada y Justificativos**
+- Edición rápida de marcas de ingreso/egreso al hacer clic en cualquier fila.
+- Carga de licencias y justificativos: **Vacaciones**, **Licencia Médica**, **Atraso Justificado**, **Ausente**, etc.
+- Campo de observaciones libres (ej: *"Presentó certificado médico N° 458"*).
+- Alerta automática para **Fichadas Incompletas**.
 
-### 🔍 **Filtros Avanzados de Búsqueda**
-- Búsqueda en tiempo real por **Nombre** o **Legajo** de empleado.
-- Filtrado flexible por **Rango de Fechas** (Fecha Inicio / Fecha Fin).
-- Segmentación instantánea según el tipo de novedad.
+### 🌙 **Motor Avanzado de Horas Extras y Nocturnidad**
+- **Horas Extras al 50%**: Cómputo automático del exceso sobre la jornada diaria en días hábiles.
+- **Horas Extras al 100%**: Cómputo automático en **Domingos** y **Feriados**.
+- **Horas Nocturnas**: Recargo de horas laboradas entre las 21:00 hs y las 06:00 hs.
+- Tolerancia de tardanzas y horas de jornada diaria totalmente configurables.
 
-### ⚙️ **Configuración Personalizada de Turnos**
-- Gestión dinámica de rangos horarios de entrada y salida.
-- Definición de tolerancia de minutos para el cómputo de llegadas tarde.
-- Persistencia local de configuraciones personalizadas.
+### 🔒 **Persistencia Local y Cierres de Liquidación**
+- **Persistencia en Navegador (IndexedDB)**: Guardado automático de datos cargados y editados sin pérdida al recargar.
+- **Cierre / Congelamiento de Liquidación**: Bloqueo de período para prevenir modificaciones accidentales una vez cerrado el mes.
 
-### 📥 **Exportación Multi-Formato**
-- Exportación de reportes procesados a formatos **Excel (.xlsx)**, **CSV** y **PDF**, listos para liquidación de haberes y auditorías.
+### 📄 **Ficha Individual del Empleado y Exportación**
+- **Ficha Individual con Firmas**: Planilla de conformidad por legajo lista para imprimir/PDF con espacio para firma del empleado y RRHH.
+- Exportación completa de reportes a **Excel (.xlsx)** y **CSV** con desglose de horas extras, nocturnas y observaciones.
 
 ---
 
@@ -59,16 +66,17 @@
 
 | Tecnología | Descripción |
 | :--- | :--- |
-| **React 18** | Arquitectura basada en componentes reactivos y eficientes. |
-| **TypeScript** | Tipado estático robusto para garantizar la integridad de los datos de fichadas. |
+| **React 18** | Arquitectura basada en componentes reactivos de alto rendimiento. |
+| **TypeScript** | Tipado estático estricto para garantizar integridad en cálculos de asistencia. |
+| **IndexedDB API** | Base de datos local nativa en cliente para almacenamiento privado y veloz. |
 | **Vite** | Empaquetador ultra rápido para desarrollo y compilación de producción. |
-| **Tailwind CSS & DaisyUI** | Sistema de diseño moderno, limpio y responsive. |
-| **Lucide React & Hot Toast** | Iconografía elegante y sistema de notificaciones en tiempo real. |
-| **SheetJS (XLSX) & Date-fns** | Procesamiento de archivos de cálculo y manipulaciones de fecha/hora de alta precisión. |
+| **Tailwind CSS & DaisyUI** | Sistema de diseño moderno, responsive con soporte Dark/Light Mode. |
+| **Lucide React & Hot Toast** | Iconografía minimalista y sistema dinámico de notificaciones. |
+| **SheetJS (XLSX) & Date-fns** | Procesamiento de archivos de hoja de cálculo y cálculo cronológico de precisión. |
 
 ---
 
 ## 💎 Aspectos Destacados
 
-- 🔒 **Privacidad Total**: El procesamiento se realiza 100% en el cliente en el navegador; los archivos sensibles de fichadas no se envían a servidores externos.
-- 🎨 **Experiencia de Usuario Premium**: Interfaz moderna, clara y optimizada para operar de manera intuitiva desde cualquier pantalla.
+- 🔒 **100% Privado y Seguro**: Todo el procesamiento se realiza en el navegador de tu computadora. Los archivos con información sensible no se suben a servidores externos.
+- 🎨 **Experiencia de Usuario Premium**: Interfaz moderna, rápida y optimizada para operar de manera fluida desde cualquier navegador.
