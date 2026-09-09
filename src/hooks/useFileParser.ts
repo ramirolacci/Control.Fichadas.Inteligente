@@ -30,7 +30,30 @@ export const useFileParser = (turnos: ConfigTurnos) => {
       mapped[keyNormalizada] = row[key];
     });
 
-    if (!mapped.legajo || !mapped.nombre || !mapped.fecha || !mapped.hora) {
+    if (mapped.legajo === undefined || mapped.legajo === null ||
+        mapped.nombre === undefined || mapped.nombre === null ||
+        mapped.fecha === undefined || mapped.fecha === null ||
+        mapped.hora === undefined || mapped.hora === null) {
+      return null;
+    }
+
+    const legajo = String(mapped.legajo).trim();
+    const nombre = String(mapped.nombre).trim();
+
+    let fechaStr = '';
+    if (mapped.fecha instanceof Date) {
+      const d = mapped.fecha;
+      const yr = d.getFullYear();
+      const mo = String(d.getMonth() + 1).padStart(2, '0');
+      const da = String(d.getDate()).padStart(2, '0');
+      fechaStr = `${yr}-${mo}-${da}`;
+    } else {
+      fechaStr = normalizarFecha(String(mapped.fecha).trim());
+    }
+
+    const horaStr = String(mapped.hora).trim();
+
+    if (!legajo || !nombre || !fechaStr || !horaStr) {
       return null;
     }
 
@@ -39,30 +62,50 @@ export const useFileParser = (turnos: ConfigTurnos) => {
     }
 
     const tipoLower = String(mapped.tipo).toLowerCase();
-    mapped.tipo = tipoLower.includes('entrada') || tipoLower.includes('in') ? 'entrada' : 'salida';
+    const tipo = tipoLower.includes('entrada') || tipoLower.includes('in') ? 'entrada' : 'salida';
+    const turno = mapped.turno ? (String(mapped.turno).trim() as 'mañana' | 'tarde') : undefined;
 
-    return mapped as FichadaRaw;
+    return {
+      legajo,
+      nombre,
+      fecha: fechaStr,
+      hora: horaStr,
+      tipo,
+      turno,
+    };
   };
 
   const limpiarHTML = (texto: string): string => {
     if (!texto) return '';
     // Remover tags HTML y espacios extra
-    return texto
+    return String(texto)
       .replace(/<[^>]*>/g, '')
       .replace(/\s+/g, ' ')
       .trim();
   };
 
-  const normalizarFecha = (fechaStr: string): string => {
-    if (!fechaStr) return '';
+  const normalizarFecha = (fechaVal: any): string => {
+    if (!fechaVal) return '';
+    if (fechaVal instanceof Date) {
+      const yr = fechaVal.getFullYear();
+      const mo = String(fechaVal.getMonth() + 1).padStart(2, '0');
+      const da = String(fechaVal.getDate()).padStart(2, '0');
+      return `${yr}-${mo}-${da}`;
+    }
     
     // Limpiar HTML primero
-    let fechaLimpia = limpiarHTML(fechaStr);
+    let fechaLimpia = limpiarHTML(String(fechaVal));
     
     // Extraer solo la parte de la fecha (DD/MM/YYYY)
     const matchFecha = fechaLimpia.match(/(\d{2}\/\d{2}\/\d{4})/);
     if (matchFecha) {
       return matchFecha[1];
+    }
+
+    // Extraer solo la parte de la fecha (YYYY-MM-DD)
+    const matchISO = fechaLimpia.match(/(\d{4}-\d{2}-\d{2})/);
+    if (matchISO) {
+      return matchISO[1];
     }
     
     // Si ya está en formato DD/MM/YYYY, devolverla
@@ -312,8 +355,8 @@ export const useFileParser = (turnos: ConfigTurnos) => {
       const [legajo, nombre] = empleadoKey.split('-');
 
       fichadasPorFecha.forEach((fichadasDia, fecha) => {
-        fichadasDia.sort((a, b) => a.hora.localeCompare(b.hora));
-
+        fichadasDia.sort((a, b) => String(a.hora || '').localeCompare(String(b.hora || '')));
+        
         let ingresoMañana: string | null = null;
         let egresoMañana: string | null = null;
         let ingresoTarde: string | null = null;
@@ -362,9 +405,11 @@ export const useFileParser = (turnos: ConfigTurnos) => {
     });
 
     return resultado.sort((a, b) => {
-      const fechaCompare = b.fecha.localeCompare(a.fecha);
+      const fechaA = String(a.fecha || '');
+      const fechaB = String(b.fecha || '');
+      const fechaCompare = fechaB.localeCompare(fechaA);
       if (fechaCompare !== 0) return fechaCompare;
-      return a.nombre.localeCompare(b.nombre);
+      return String(a.nombre || '').localeCompare(String(b.nombre || ''));
     });
   };
 

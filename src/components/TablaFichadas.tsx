@@ -30,13 +30,13 @@ export const TablaFichadas = ({ fichadas }: TablaFichadasProps) => {
 
       switch (sortField) {
         case 'empleado':
-          compareValue = a.nombre.localeCompare(b.nombre);
+          compareValue = String(a.nombre || '').localeCompare(String(b.nombre || ''));
           break;
         case 'fecha':
-          compareValue = a.fecha.localeCompare(b.fecha);
+          compareValue = String(a.fecha || '').localeCompare(String(b.fecha || ''));
           break;
         case 'novedad':
-          compareValue = a.novedad.localeCompare(b.novedad);
+          compareValue = String(a.novedad || '').localeCompare(String(b.novedad || ''));
           break;
       }
 
